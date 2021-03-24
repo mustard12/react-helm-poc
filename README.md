@@ -9,7 +9,7 @@
 - [- name: gitlab-registry](#--name-gitlab-registry)
 
 ## gitlab-ci.yml
----
+```yaml
 stages:
   - build
   - test
@@ -76,7 +76,7 @@ deploy:
     - if [ ${DEPLOYS}  -eq 0 ]; then helm install "$CI_PROJECT_NAME" . ; else helm upgrade "$CI_PROJECT_NAME" . ; fi
     # namespace가 있을 경우
     #- if [ ${DEPLOYS}  -eq 0 ]; then helm install "$CI_PROJECT_NAME" . --namespace=${STAGING_NAMESPACE}; else helm upgrade "$CI_PROJECT_NAME" . --namespace=${STAGING_NAMESPACE}; fi
----
+```
 
 ## CI/CD Variables 설정
 - 배포대상 K8s의 config 파일을 복사
@@ -90,7 +90,7 @@ cat ~/.kube/config | base64 | pbcopy`
 - 프로젝트 root 디렉토리에서 helm chart 생성(템플릿 프로젝트에서는 helm-chart로 생성함)
 `helm create <helm chart>`
 - `values.yaml`파일 수정
----
+```yaml
 image:
   repository: ${CI_REGISTRY_IMAGE}
   pullPolicy: IfNotPresent
@@ -98,5 +98,5 @@ image:
 
 imagePullSecrets:
   - name: gitlab-registry
----
+```
 
