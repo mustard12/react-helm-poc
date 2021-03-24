@@ -52,7 +52,7 @@ deploy:
   before_script:
     - mkdir -p /etc/deploy
     - echo ${kube_config} | base64 -d > ${KUBECONFIG}
-    - kubectl config use-context homekube
+    - kubectl config use-context devops.infograb.k8s.local
     #- helm init --client-only
     #- helm repo add stable https://kubernetes-charts.storage.googleapis.com/
     #- helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
