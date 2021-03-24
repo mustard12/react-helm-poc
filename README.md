@@ -2,11 +2,13 @@
 
 ## 목차
 - [목차](#목차)
-- [## gitlab-ci.yml](#-gitlab-ciyml)
+- [버젼 정보](#버젼-정보)
 - [CI/CD Variables 설정](#cicd-variables-설정)
 - [Helm Chart Setting](#helm-chart-setting)
-- [- `values.yaml`파일 수정](#--valuesyaml파일-수정)
-- [- name: gitlab-registry](#--name-gitlab-registry)
+
+## 버젼 정보
+- helm v1.20
+- kubectl v3.5.3
 
 ## gitlab-ci.yml
 ```yaml
@@ -88,11 +90,13 @@ cat ~/.kube/config | base64 | pbcopy`
 
 ## Helm Chart Setting
 - 프로젝트 root 디렉토리에서 helm chart 생성(템플릿 프로젝트에서는 helm-chart로 생성함)
-`helm create <helm chart>`
+```bash
+helm create $helm_chart_name
+```
 - `values.yaml`파일 수정
 ```yaml
 image:
-  repository: ${CI_REGISTRY_IMAGE}
+  repository: <CI_REGISTRY_IMAGE>
   pullPolicy: IfNotPresent
   tag: latest
 
