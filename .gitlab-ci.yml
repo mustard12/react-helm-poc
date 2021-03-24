@@ -23,7 +23,7 @@ deploy:
     #- helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
     #- helm repo update
   script:
-    #- cd deploy/libr-files
+    - cd helm-chart
     # - helm dep build
     - export API_VERSION="$(grep "appVersion" Chart.yaml | cut -d" " -f2)"
     - export RELEASE_NAME="react-files-v${API_VERSION/./-}"
