@@ -20,5 +20,5 @@ deploy:
   script:
     - cd helm-chart
     - export API_VERSION="$(grep "appVersion" Chart.yaml | cut -d" " -f2)"
-    - export DEPLOYS=$(helm ls | grep $RELEASE_NAME | wc -l)
+    - export DEPLOYS=$(helm ls | grep react-app | wc -l)
     - if [ ${DEPLOYS}  -eq 0 ]; then helm install react-app . ; else helm upgrade react-app . ; fi
