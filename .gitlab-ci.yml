@@ -46,11 +46,10 @@ docker-build:
     - docker build --pull -t "$CI_REGISTRY_IMAGE" .
     - docker push "$CI_REGISTRY_IMAGE"
   
-
-  deploy:
-    stage: deploy
-    image: apline/helm:latest
-    before_script:
+deploy:
+  stage: deploy
+  image: apline/helm:latest
+  before_script:
     - mkdir -p /etc/deploy
     - echo ${kube_config} | base64 -d > ${KUBECONFIG}
     - kubectl config use-context homekube
