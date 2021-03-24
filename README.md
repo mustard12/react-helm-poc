@@ -89,10 +89,10 @@ deploy:
     # namespace가 있을 경우
     #- if [ ${DEPLOYS}  -eq 0 ]; then helm install "$CI_PROJECT_NAME" . --namespace=${STAGING_NAMESPACE}; else helm upgrade "$CI_PROJECT_NAME" . --namespace=${STAGING_NAMESPACE}; fi 
 ``` 
- 
-> 다음 image는 LoadBalance를 이용하여 해당 앱을 확인했을 때 모습입니다
 
     ![react-app](images/react-app.png "React App with k8s LoadBalance")
+
+> 다음 image는 LoadBalance를 이용하여 해당 앱을 확인했을 때 모습입니다
 
 ### CI/CD Variables 설정
 - 배포대상 K8s의 config 파일을 복사
