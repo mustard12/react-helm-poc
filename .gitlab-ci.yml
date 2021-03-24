@@ -15,7 +15,7 @@ deploy:
   image: lwolf/helm-kubectl-docker:latest
   before_script:
     - mkdir -p /etc/deploy
-    - echo ${kube_config} | base64 -d > ${KUBECONFIG}
+    - echo ${kube_config} > ${KUBECONFIG}
     # - kubectl config use-context devops.infograb.k8s.local
     - kubectl create secret docker-registry gitlab-registry --docker-server="$CI_REGISTRY" --docker-username="$CI_REGISTRY_USER" --docker-password="$CI_REGISTRY_PASSWORD" --docker-email="$GITLAB_USER_EMAIL" -o yaml --dry-run=client | kubectl apply -f -
     #- helm init --client-only
