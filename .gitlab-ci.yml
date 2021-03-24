@@ -16,15 +16,9 @@ deploy:
   before_script:
     - mkdir -p /etc/deploy
     - echo ${kube_config} | base64 -d > ${KUBECONFIG}
-    # - kubectl config use-context devops.infograb.k8s.local
     - kubectl create secret docker-registry gitlab-registry --docker-server="$CI_REGISTRY" --docker-username="$CI_REGISTRY_USER" --docker-password="$CI_REGISTRY_PASSWORD" --docker-email="$GITLAB_USER_EMAIL" -o yaml --dry-run=client | kubectl apply -f -
-    #- helm init --client-only
-    #- helm repo add stable https://kubernetes-charts.storage.googleapis.com/
-    #- helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
-    #- helm repo update
   script:
     - cd helm-chart
-    # - helm dep build
     - export API_VERSION="$(grep "appVersion" Chart.yaml | cut -d" " -f2)"
     - export DEPLOYS=$(helm ls | grep $RELEASE_NAME | wc -l)
     - if [ ${DEPLOYS}  -eq 0 ]; then helm install react-app . ; else helm upgrade react-app . ; fi
