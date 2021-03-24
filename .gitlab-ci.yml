@@ -1,0 +1,67 @@
+stages:
+  - build
+  - test
+  - docker-build
+  - deploy
+
+  variables:
+  CONTAINER_IMAGE: ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_BUILD_REF_NAME}_${CI_BUILD_REF}
+  CONTAINER_IMAGE_LATEST: ${CI_REGISTRY}/${CI_PROJECT_PATH}:latest
+  DOCKER_DRIVER: overlay2
+
+  KUBECONFIG: /etc/deploy/config
+  STAGING_NAMESPACE: app-stage
+  PRODUCTION_NAMESPACE: app-prod
+
+build:
+  stage: build
+  image: node
+  script: 
+    - echo "Start building App"
+    - npm install
+    - npm build
+    - echo "Build successfully!"
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - build
+      - node_modules/
+
+test:
+  stage: test
+  image: node
+  script:
+    - echo "Testing App"
+    - CI=true npm test
+    - echo "Test successfully!"
+
+docker-build:
+  stage: docker-build
+  image: docker:latest
+  services: 
+    - name: docker:19.03.8-dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE" .
+    - docker push "$CI_REGISTRY_IMAGE"
+  
+
+  deploy:
+    stage: deploy
+    image: apline/helm:latest
+    before_script:
+    - mkdir -p /etc/deploy
+    - echo ${kube_config} | base64 -d > ${KUBECONFIG}
+    - kubectl config use-context homekube
+    #- helm init --client-only
+    #- helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+    #- helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
+    #- helm repo update
+  script:
+    #- cd deploy/libr-files
+    - helm dep build
+    - export API_VERSION="$(grep "appVersion" Chart.yaml | cut -d" " -f2)"
+    - export RELEASE_NAME="react-files-v${API_VERSION/./-}"
+    - export DEPLOYS=$(helm ls | grep $RELEASE_NAME | wc -l)
+    - if [ ${DEPLOYS}  -eq 0 ]; then helm install --name=${RELEASE_NAME} . --namespace=${STAGING_NAMESPACE}; else helm upgrade ${RELEASE_NAME} . --namespace=${STAGING_NAMESPACE}; fi
