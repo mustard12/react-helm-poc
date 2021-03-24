@@ -28,4 +28,4 @@ deploy:
     - export API_VERSION="$(grep "appVersion" Chart.yaml | cut -d" " -f2)"
     - export RELEASE_NAME="react-files-v${API_VERSION/./-}"
     - export DEPLOYS=$(helm ls | grep $RELEASE_NAME | wc -l)
-    - if [ ${DEPLOYS}  -eq 0 ]; then helm install --name=${RELEASE_NAME} . --namespace=${STAGING_NAMESPACE}; else helm upgrade ${RELEASE_NAME} . --namespace=${STAGING_NAMESPACE}; fi
+    - if [ ${DEPLOYS}  -eq 0 ]; then helm install ${RELEASE_NAME} . --namespace=${STAGING_NAMESPACE}; else helm upgrade ${RELEASE_NAME} . --namespace=${STAGING_NAMESPACE}; fi
