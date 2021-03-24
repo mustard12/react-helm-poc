@@ -58,7 +58,7 @@ deploy:
   script:
     - cd helm-chart
     - export API_VERSION="$(grep "appVersion" Chart.yaml | cut -d" " -f2)"
-    - export DEPLOYS=$(helm ls | grep react-app | wc -l)
+    - export DEPLOYS=$(helm ls | grep "$CI_PROJECT_NAME" | wc -l)
     # namespace가 없을 경우(react-app)
     # helm chart로 배포
     - if [ ${DEPLOYS}  -eq 0 ]; then helm install "$CI_PROJECT_NAME" . ; else helm upgrade "$CI_PROJECT_NAME" . ; fi
