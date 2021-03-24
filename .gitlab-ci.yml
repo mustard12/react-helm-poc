@@ -1,4 +1,7 @@
 stages:
+  - build
+  - test
+  - docker-build
   - deploy
 
 variables:
@@ -9,16 +12,55 @@ variables:
   KUBECONFIG: /etc/deploy/config
   STAGING_NAMESPACE: app-stage
   PRODUCTION_NAMESPACE: app-prod
+
+build:
+  stage: build
+  image: node
+  script: 
+    - echo "Start building App"
+    - npm install
+    - npm build
+    - echo "Build successfully!"
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - build
+      - node_modules/
+
+test:
+  stage: test
+  image: node
+  script:
+    - echo "Testing App"
+    - CI=true npm test
+    - echo "Test successfully!"
+
+docker-build:
+  stage: docker-build
+  image: docker:latest
+  services: 
+    - name: docker:19.03.8-dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE" .
+    - docker push "$CI_REGISTRY_IMAGE"
   
 deploy:
   stage: deploy
   image: lwolf/helm-kubectl-docker:latest
   before_script:
     - mkdir -p /etc/deploy
-    - echo ${kube_config} | base64 -d > ${KUBECONFIG}
+    # kubernetes config 설정
+    - echo ${KUBE_CONFIG} | base64 -d > ${KUBECONFIG}
+    # gitlab-registry 이름으로 imagePullSecretes 생성(values.yaml 참고)
     - kubectl create secret docker-registry gitlab-registry --docker-server="$CI_REGISTRY" --docker-username="$CI_REGISTRY_USER" --docker-password="$CI_REGISTRY_PASSWORD" --docker-email="$GITLAB_USER_EMAIL" -o yaml --dry-run=client | kubectl apply -f -
   script:
     - cd helm-chart
     - export API_VERSION="$(grep "appVersion" Chart.yaml | cut -d" " -f2)"
     - export DEPLOYS=$(helm ls | grep react-app | wc -l)
-    - if [ ${DEPLOYS}  -eq 0 ]; then helm install react-app . ; else helm upgrade react-app . ; fi
+    # namespace가 없을 경우(react-app)
+    # helm chart로 배포
+    - if [ ${DEPLOYS}  -eq 0 ]; then helm install "$CI_PROJECT_NAME" . ; else helm upgrade "$CI_PROJECT_NAME" . ; fi
+    # namespace가 있을 경우
+    #- if [ ${DEPLOYS}  -eq 0 ]; then helm install "$CI_PROJECT_NAME" . --namespace=${STAGING_NAMESPACE}; else helm upgrade "$CI_PROJECT_NAME" . --namespace=${STAGING_NAMESPACE}; fi
