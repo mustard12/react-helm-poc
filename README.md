@@ -11,8 +11,8 @@
   - [Helm Chart Setting](#helm-chart-setting)
 
 ## 버젼 정보
-- helm v1.20
-- kubectl v3.5.3
+- helm v3.5.3
+- kubectl v1.20
 
 ## gitlab-ci.yml 구성
 - stage를 명시화
